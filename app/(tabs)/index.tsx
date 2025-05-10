@@ -1,75 +1,75 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
-
-import { HelloWave } from '@/components/HelloWave';
-import ParallaxScrollView from '@/components/ParallaxScrollView';
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
+import { Todo } from "@/prisma/generated/client/edge";
+import { useEffect, useState } from "react";
+import { Text, Button, View, TextInput } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function HomeScreen() {
+  const [title, setTitle] = useState("");
+  const [todos, setTodos] = useState<Todo[]>([]);
+
+  useEffect(() => {
+    const fetchTodos = async () => {
+      const response = await fetch("http://localhost:8081/api/todo");
+      const data = await response.json();
+      setTodos(data);
+    };
+
+    fetchTodos();
+  }, []);
+
+  const handleCreateTodo = async () => {
+    const response = await fetch("http://localhost:8081/api/todo", {
+      method: "POST",
+      body: JSON.stringify({ title }),
+    });
+
+    const data = await response.json();
+
+    console.log(data);
+  };
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
+    <SafeAreaView style={{ flex: 1 }}>
+      <View
+        style={{
+          flex: 1,
+          padding: 16,
+        }}
+      >
+        <Text style={{ fontSize: 24, fontWeight: "bold" }}>
+          Hello Prisma! 🚀
+        </Text>
+        <TextInput
+          placeholder="New Todo"
+          value={title}
+          onChangeText={setTitle}
+          style={{
+            borderWidth: 1,
+            borderColor: "gray",
+            borderRadius: 10,
+            padding: 10,
+            marginVertical: 16,
+          }}
         />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12',
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-        <ThemedText>
-          {`Tap the Explore tab to learn more about what's included in this starter app.`}
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          {`When you're ready, run `}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+        <Button title="Create Todo" onPress={handleCreateTodo} />
+        <View style={{ gap: 16 }}>
+          {todos.map((todo) => (
+            <View
+              key={todo.id}
+              style={{
+                padding: 10,
+                borderWidth: 1,
+                borderColor: "gray",
+                borderRadius: 10,
+              }}
+            >
+              <Text>{todo.id}</Text>
+              <Text>{todo.title}</Text>
+              <Text>{new Date(todo.createdAt).toISOString()}</Text>
+              <Text>{new Date(todo.updatedAt).toISOString()}</Text>
+            </View>
+          ))}
+        </View>
+      </View>
+    </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
-  },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
-  },
-});
