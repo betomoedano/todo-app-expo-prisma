@@ -37,13 +37,15 @@
       "expo-web-browser"
     ],
     "experiments": {
-      "typedRoutes": true
+      "typedRoutes": true,
+      "buildCacheProvider": "eas"
     },
     "extra": {
       "router": {},
       "eas": {
-        "projectId": "270f259e-c1a2-48ff-919a-5aca034f7c44"
+        "projectId": "c63150c7-d1ed-4eb1-8878-83cda4cfc57c"
       }
-    }
+    },
+    "owner": "betoatexpo"
   }
 }
